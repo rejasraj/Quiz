@@ -2,8 +2,10 @@ package com.example.quiz;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -15,6 +17,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity {
+    SharedPreferences sharedPreferences;
     Button start;
     Game game;
     Timer timer;
@@ -23,11 +26,16 @@ public class MainActivity extends AppCompatActivity {
     EditText answer;
     TextView problem;
     TextView score;
+    TextView highScore;
+    int high;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        highScore = (TextView) findViewById(R.id.highScore);
+        highScore.setText("High Score: " + sharedPreferences.getInt("highScore", 0));
         time = (TextView) findViewById(R.id.time);
         answer = (EditText) findViewById(R.id.answer);
         problem = (TextView) findViewById(R.id.problem);
@@ -79,6 +87,12 @@ public class MainActivity extends AppCompatActivity {
                     game.generateProblem();
                     problem.setText(game.getA() + " * " + game.getB() + " = ");
                     answer.getText().clear();
+                    if (game.getScore() > sharedPreferences.getInt("highScore", 0)) {
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putInt("highScore", game.getScore());
+                        editor.apply();
+                        highScore.setText("High Score: " + game.getScore());
+                    }
                 }
             }
 
