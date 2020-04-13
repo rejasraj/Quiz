@@ -13,6 +13,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.google.gson.Gson;
+
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -27,15 +29,20 @@ public class MainActivity extends AppCompatActivity {
     TextView problem;
     TextView score;
     TextView highScore;
-    int high;
+    Gson gson;
+    SavedState savedState;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
         sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        gson = new Gson();
+        String json = sharedPreferences.getString("savedState", "");
+        savedState = json.isEmpty() ? new SavedState(0) : gson.fromJson(json, SavedState.class);
+
         highScore = (TextView) findViewById(R.id.highScore);
-        highScore.setText("High Score: " + sharedPreferences.getInt("highScore", 0));
+        highScore.setText("High Score: " + savedState.getHighScore());
         time = (TextView) findViewById(R.id.time);
         answer = (EditText) findViewById(R.id.answer);
         problem = (TextView) findViewById(R.id.problem);
@@ -87,11 +94,9 @@ public class MainActivity extends AppCompatActivity {
                     game.generateProblem();
                     problem.setText(game.getA() + " * " + game.getB() + " = ");
                     answer.getText().clear();
-                    if (game.getScore() > sharedPreferences.getInt("highScore", 0)) {
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putInt("highScore", game.getScore());
-                        editor.apply();
-                        highScore.setText("High Score: " + game.getScore());
+                    if (game.getScore() > savedState.getHighScore()) {
+                        savedState.setHighScore(game.getScore());
+                        highScore.setText("High Score: " + savedState.getHighScore());
                     }
                 }
             }
@@ -101,6 +106,14 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+    }
+    @Override
+    protected void onStop()
+    {
+        super.onStop();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putString("savedState", gson.toJson(savedState));
+        editor.apply();
     }
 }
 class Game {
@@ -146,5 +159,22 @@ class Game {
     }
     public boolean isRunning() {
         return startTime != 0 && this.getRemainingTime() >= 0;
+    }
+}
+class SavedState
+{
+    private int highScore;
+
+    public SavedState(int highScore)
+    {
+        this.highScore = highScore;
+    }
+
+    public int getHighScore() {
+        return highScore;
+    }
+
+    public void setHighScore(int highScore) {
+        this.highScore = highScore;
     }
 }
