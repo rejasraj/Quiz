@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity {
     TextView highScore;
     Gson gson;
     SavedState savedState;
+    Button buttonInstructions;
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -104,6 +105,14 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable s) {
 
+            }
+        });
+        buttonInstructions = (Button) findViewById(R.id.buttonInstructions);
+        buttonInstructions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                MyDialogFragment fragment = new MyDialogFragment();
+                fragment.show(getSupportFragmentManager(), "dialog");
             }
         });
     }

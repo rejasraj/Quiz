@@ -3,4 +3,5 @@
     <string name="title">Minute Math</string>
     <string name="start">Start</string>
     <string name="score">Score: 0</string>
+    <string name="instructions">Instructions</string>
 </resources>
